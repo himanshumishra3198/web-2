@@ -35,7 +35,7 @@ A simple and intuitive todo application built using HTML, CSS, JavaScript, and D
 ### How to Use
 
 1. Clone the repository to your local machine.
-2. Navigate to the `simple-todo-application` directory.
+2. Navigate to the `todo-app` directory.
 3. Open the `index.html` file in your web browser.
 4. Start adding and removing tasks as needed!
 
@@ -57,10 +57,10 @@ A custom command-line interface (CLI) tool built with the Commander library. Thi
 ### How to Use
 
 1. Clone the repository to your local machine.
-2. Navigate to the `custom-cli-tool` directory.
+2. Navigate to the `customCli` directory.
 3. Install the required dependencies using `npm install`.
 4. Use the CLI tool by running the following commands:
 
 ```bash
-node cli.js count-words <filename>
-node cli.js count-sentences <filename>
+node index.js count-words <filename>
+node index.js count-sentences <filename>
