@@ -36,12 +36,20 @@ app.post("/signin", (req, res) => {
   }
 });
 
-app.get("/me", (req, res) => {
-  const token = req.headers.authorization;
-
+function auth(req, res, next) {
+  const token = req.body.authorization;
   const username = jwt.verify(token, JWT_SECRET);
 
-  let user = users.find((user) => user.username === username);
+  if (username) {
+    req.username = username;
+    next();
+  } else
+    res.status(401).send({
+      message: "You are not authorized to visit this site",
+    });
+}
+app.get("/me", auth, (req, res) => {
+  let user = users.find((user) => user.username === req.username);
   if (user) {
     res.status(200).send(user);
   } else {
