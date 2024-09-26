@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const { userModel, todoModel } = require("./db");
 
 const app = express();
@@ -19,7 +20,8 @@ app.get("/", (req, res) => {
 
 app.post("/signup", async (req, res) => {
   const email = req.body.email;
-  const password = req.body.password;
+
+  const password = await bcrypt.hash(req.body.password, 5);
   try {
     await userModel.create({
       email,
@@ -39,11 +41,13 @@ app.post("/login", async (req, res) => {
 
   const user = await userModel.findOne({
     email: email,
-    password: password,
   });
-
+  let match;
   if (user) {
-    const token = await jwt.sign({ userId: user._id }, JWT_SECRET);
+    match = await bcrypt.compare(password, user.password);
+  }
+  if (match) {
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
     res.status(200).json({
       token: token,
     });
