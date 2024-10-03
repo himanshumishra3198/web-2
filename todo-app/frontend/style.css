@@ -1,0 +1,92 @@
+body {
+  margin: 0;
+
+  font-family: "Montserrat";
+}
+
+#root {
+  display: flex;
+  justify-content: space-between;
+}
+.box {
+  width: 280px;
+  height: 360px;
+  /* border-style: dashed; */
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  gap: 6px;
+}
+
+.task {
+  /* justify-content: space-between; */
+  /* margin: 8px; */
+  /* border-style: groove; */
+  padding: 6px;
+  /* justify-content: center; */
+  cursor: grab;
+  font-size: 14px;
+  border-radius: 2px;
+  background-color: aliceblue;
+}
+.down {
+  padding-top: 24px;
+}
+
+.taskTitle {
+  font-weight: bold;
+}
+.taskDiscription {
+  margin-top: 12px;
+}
+.taskMeta {
+  display: flex;
+  justify-content: space-between;
+}
+
+.taskDifficulty {
+  background-color: #ffa500;
+  padding: 6px;
+  border-radius: 14px;
+  font-size: 12px;
+  color: white;
+}
+
+.metaLeft {
+  display: flex;
+}
+
+.boxHeader {
+  display: flex;
+  justify-content: space-between;
+}
+
+.date {
+  padding-top: 6px;
+  padding-left: 6px;
+  font-size: 10px;
+}
+.metaRight {
+  padding-top: 6px;
+  font-size: 10px;
+}
+
+.addNewTask {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  border-radius: 2px;
+  background-color: #36454f;
+  padding: 6px;
+  color: white;
+}
+.addTaskBtn {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.formDiv {
+  background-color: #36454f;
+  border-radius: 2px;
+  color: white;
+}

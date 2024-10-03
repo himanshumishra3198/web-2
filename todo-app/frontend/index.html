@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>task-visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Sacramento&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="root">
+      <div class="box" id="do">
+        <div class="boxHeader">
+          <div class="boxTitle">To Do</div>
+          <div class="boxMenu">
+            <img
+              width="24"
+              height="24"
+              src="https://img.icons8.com/color/48/fries-menu.png"
+              alt="fries-menu"
+            />
+          </div>
+        </div>
+        <div>
+          <div class="task" draggable="true">
+            <div class="up">
+              <div class="taskTitle">Go Gym</div>
+
+              <div class="taskDescription">
+                Go to gym at sharp 6 O'Clock fkl
+              </div>
+            </div>
+            <div class="down">
+              <div class="taskMeta">
+                <div class="metaLeft">
+                  <div class="taskDifficulty">Medium</div>
+                  <div class="date">July 31, 2024</div>
+                </div>
+                <div class="metaRight">1 hr ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="addNewTask">
+          <div>Add new</div>
+          <div onclick="createTask()" class="addTaskBtn">+</div>
+        </div>
+      </div>
+
+      <div class="box" id="progress">
+        <div class="boxHeader">
+          <div class="boxTitle">In Progress</div>
+          <div class="boxMenu">
+            <img
+              width="24"
+              height="24"
+              src="https://img.icons8.com/color/48/fries-menu.png"
+              alt="fries-menu"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="box" id="review">
+        <div class="boxHeader">
+          <div class="boxTitle">Under Review</div>
+          <div class="boxMenu">
+            <img
+              width="24"
+              height="24"
+              src="https://img.icons8.com/color/48/fries-menu.png"
+              alt="fries-menu"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="box" id="finish">
+        <div class="boxHeader">
+          <div class="boxTitle">Finished</div>
+          <div class="boxMenu">
+            <img
+              width="24"
+              height="24"
+              src="https://img.icons8.com/color/48/fries-menu.png"
+              alt="fries-menu"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="script.js"></script>
+</html>
