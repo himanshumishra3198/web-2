@@ -17,7 +17,20 @@ body {
   padding: 6px;
   gap: 6px;
 }
-
+.saveDiv {
+  width: 240px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.save {
+  background-color: #28a745;
+  width: 64px;
+  height: 28px;
+  border-radius: 1px;
+  padding: 6px;
+}
 .task {
   /* justify-content: space-between; */
   /* margin: 8px; */
@@ -78,6 +91,7 @@ body {
   border-radius: 2px;
   background-color: #36454f;
   padding: 6px;
+
   color: white;
 }
 .addTaskBtn {
@@ -89,4 +103,26 @@ body {
   background-color: #36454f;
   border-radius: 2px;
   color: white;
+  padding: 6px;
+  padding-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.formDiv h1 {
+  all: unset;
+  font-weight: bold;
+}
+.tcd {
+  display: flex;
+  justify-content: space-between;
+}
+
+input {
+  background-color: aliceblue;
+  border-radius: 2px;
+}
+select {
+  border-radius: 2px;
 }
