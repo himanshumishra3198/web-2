@@ -46,29 +46,40 @@ function handleDragStart(e) {
 
   doContainer.addEventListener("dragover", (e) => e.preventDefault());
   doContainer.addEventListener("drop", (e) => {
-    doBox.appendChild(selected);
+    if (selected) doBox.appendChild(selected);
+
     selected = null;
   });
 
   progressContainer.addEventListener("dragover", (e) => e.preventDefault());
   progressContainer.addEventListener("drop", (e) => {
-    progressBox.appendChild(selected);
+    if (selected) progressBox.appendChild(selected);
     selected = null;
   });
 
   reviewContainer.addEventListener("dragover", (e) => e.preventDefault());
   reviewContainer.addEventListener("drop", (e) => {
-    reviewBox.appendChild(selected);
+    if (selected) reviewBox.appendChild(selected);
     selected = null;
   });
 
   finishContainer.addEventListener("dragover", (e) => e.preventDefault());
   finishContainer.addEventListener("drop", (e) => {
-    finishBox.appendChild(selected);
+    if (selected) finishBox.appendChild(selected);
     selected = null;
   });
 }
+function showSavedNotification() {
+  const notification = document.getElementById("savedNotification");
 
+  // Make the notification visible
+  notification.classList.add("visible");
+
+  // Hide it after 3 seconds
+  setTimeout(() => {
+    notification.classList.remove("visible");
+  }, 2000); // 2000ms = 3 seconds
+}
 function renderList() {
   let doBoxDisplayDiv = document.getElementById("doBoxDisplayArea");
   let progressBoxDisplayDiv = document.getElementById("progressBoxDisplayArea");
@@ -101,7 +112,12 @@ function handleSave(event) {
 
   taskList.push(newTask);
   renderList();
-  console.log(taskList);
+
+  showSavedNotification();
+
+  let formDiv = document.getElementsByClassName("formDiv")[0];
+  let box = document.getElementById("do");
+  box.removeChild(formDiv);
 }
 
 function getCurrentTimeInIST() {

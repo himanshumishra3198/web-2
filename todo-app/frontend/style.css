@@ -25,6 +25,7 @@ body {
   align-items: center;
 }
 .save {
+  cursor: pointer;
   background-color: #28a745;
   width: 64px;
   height: 28px;
@@ -125,4 +126,41 @@ input {
 }
 select {
   border-radius: 2px;
+}
+
+/* Notification container */
+.notification-container {
+  display: none; /* Initially hidden */
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: #262626; /* Dark background */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid white;
+  z-index: 1000; /* Ensure it appears on top */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.notification-container.visible {
+  display: flex; /* Show notification when visible */
+  opacity: 1; /* Fade in */
+}
+
+.check-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+#doBoxDisplayArea,
+#progressBoxDisplayArea,
+#reviewBoxDisplayArea,
+#finishBoxDisplayArea {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 6px;
 }
