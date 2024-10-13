@@ -14,7 +14,7 @@ function injectHtml(displayDiv, state) {
         <div class="down">
           <div class="taskMeta">
             <div class="metaLeft">
-              <div class="taskDifficulty">${task.difficulty}</div>
+              <div class="taskDifficulty" id="${task.difficulty}">${task.difficulty}</div>
               <div class="date">${task.date}</div>
             </div>
             <div class="metaRight">${task.time}</div>
