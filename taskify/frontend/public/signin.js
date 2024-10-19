@@ -12,7 +12,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     });
     if (response.ok) {
       const { token } = await response.json();
-      localStorage.setItem("token", token);
+      sessionStorage.setItem("token", token);
       location.href = "/dashboard";
     } else {
       console.log("Wrong username or password");

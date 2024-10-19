@@ -11,7 +11,7 @@ userRouter.get(["/", "/signup"], (req, res) => {
 });
 
 userRouter.get("/signin", (req, res) => {
-  res.sendFile(path.join(__dirname + "../../frontend/public/signin.html"));
+  res.sendFile(path.join(__dirname, "../../frontend/public/signin.html"));
 });
 
 userRouter.post("/signup", async (req, res) => {
@@ -24,9 +24,7 @@ userRouter.post("/signup", async (req, res) => {
       email: email,
       password: password,
     });
-    res.status(201).json({
-      message: "User registered successfully",
-    });
+    res.redirect("/signin");
   } catch (e) {
     res.status(403).json({
       message: e,

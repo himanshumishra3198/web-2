@@ -16,7 +16,7 @@ registerForm.addEventListener("submit", async (e) => {
       body: JSON.stringify({ email, password }),
     });
     if (response.ok) {
-      console.log(await response.json());
+      location.href = "/signin";
     } else {
       console.log("User already exists");
     }

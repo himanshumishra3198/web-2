@@ -4,10 +4,10 @@ window.onload = () => {
 };
 
 async function fetchTasks() {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   try {
     const response = await fetch("/getTask", {
-      methon: "GET",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `${token}`,
@@ -36,9 +36,12 @@ function injectHtml(displayDiv, state) {
       
       <div class="task" draggable="true">
       <div style="display:none;">${task._id}</div>
+        <div class="task-header">
         <div class="up">
-          <div class="taskTitle">${task.title}</div>
-          <div class="taskDescription">${task.content}</div>
+            <div class="taskTitle">${task.title}</div>
+            <div class="taskDescription">${task.content}</div>
+        </div>
+        <img id="trash-icon" src="trash.svg" alt="Your SVG Image" onclick="deleteTask('${task._id}')">
         </div>
         <div class="down">
           <div class="taskMeta">
@@ -60,6 +63,35 @@ function injectHtml(displayDiv, state) {
   });
 }
 
+async function deleteTask(id) {
+  console.log(id);
+  const confirmation = confirm("Are you sure you want to delete");
+  const token = sessionStorage.getItem("token");
+  if (confirmation) {
+    try {
+      // Send a DELETE request to your server to remove the task
+      const response = await fetch(`/tasks/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      });
+
+      if (response.ok) {
+        // Handle successful deletion (e.g., remove the task from the UI)
+
+        alert("Task deleted successfully.");
+        fetchTasks();
+      } else {
+        alert("Failed to delete task.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while trying to delete the task.");
+    }
+  } else console.log("no");
+}
+
 function handleDragStart(e) {
   let selected = e.target;
 
@@ -74,46 +106,79 @@ function handleDragStart(e) {
   let finishBox = document.getElementById("finishBoxDisplayArea");
 
   doContainer.addEventListener("dragover", (e) => e.preventDefault());
-  doContainer.addEventListener("drop", (e) => {
+  doContainer.addEventListener("drop", async (e) => {
     if (selected) {
-      doBox.appendChild(selected);
       const id = selected.firstElementChild.innerText;
-      updateState(id, "do");
+      await updateTaskState(id, "do");
+      fetchTasks();
     }
 
     selected = null;
   });
 
   progressContainer.addEventListener("dragover", (e) => e.preventDefault());
-  progressContainer.addEventListener("drop", (e) => {
+  progressContainer.addEventListener("drop", async (e) => {
     if (selected) {
-      doBox.appendChild(selected);
       const id = selected.firstElementChild.innerText;
-      updateState(id, "progress");
+      await updateTaskState(id, "progress");
+      fetchTasks();
     }
     selected = null;
   });
 
   reviewContainer.addEventListener("dragover", (e) => e.preventDefault());
-  reviewContainer.addEventListener("drop", (e) => {
+  reviewContainer.addEventListener("drop", async (e) => {
     if (selected) {
-      doBox.appendChild(selected);
       const id = selected.firstElementChild.innerText;
-      updateState(id, "review");
+      await updateTaskState(id, "review");
+      fetchTasks();
     }
     selected = null;
   });
 
   finishContainer.addEventListener("dragover", (e) => e.preventDefault());
-  finishContainer.addEventListener("drop", (e) => {
+  finishContainer.addEventListener("drop", async (e) => {
     if (selected) {
-      doBox.appendChild(selected);
       const id = selected.firstElementChild.innerText;
-      updateState(id, "finish");
+      await updateTaskState(id, "finish");
+      fetchTasks();
     }
     selected = null;
   });
 }
+
+async function updateTaskState(id, state) {
+  try {
+    console.log(id);
+    console.log(state);
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      throw new Error("Token not found. User may not be authenticated.");
+    }
+
+    const response = await fetch("/updateState", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${token}`, // Include Bearer prefix
+      },
+      body: JSON.stringify({ id, state }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data); // Log the response data
+    } else {
+      const errorData = await response.json(); // Get error response
+      console.log(errorData);
+      throw new Error(errorData.message || "Failed to update state."); // Extract message safely
+    }
+  } catch (e) {
+    console.log(e);
+    console.error("Error updating state:", e.message); // Log error message
+  }
+}
+
 function showSavedNotification() {
   const notification = document.getElementById("savedNotification");
 
@@ -143,7 +208,7 @@ function renderList() {
 
 async function sendToBackend(task) {
   try {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     const response = await fetch("/addTask", {
       method: "POST",
       headers: {
@@ -315,3 +380,9 @@ function createTask() {
   let doBox = document.getElementById("do");
   doBox.append(formDiv);
 }
+
+document.getElementById("logoutBtn").addEventListener("click", function () {
+  alert("Logging out...");
+  sessionStorage.removeItem("token");
+  window.location.href = "/signin"; // Example redirect to sign-in page
+});
