@@ -15,9 +15,9 @@ async function fetchTasks() {
     });
     if (response.ok) {
       let data = await response.json();
-      console.log();
+
       taskList = data.tasks;
-      console.log(taskList);
+
       renderList();
     } else {
       throw new Error("Error fetchin task");
@@ -64,7 +64,6 @@ function injectHtml(displayDiv, state) {
 }
 
 async function deleteTask(id) {
-  console.log(id);
   const confirmation = confirm("Are you sure you want to delete");
   const token = sessionStorage.getItem("token");
   if (confirmation) {
@@ -149,8 +148,6 @@ function handleDragStart(e) {
 
 async function updateTaskState(id, state) {
   try {
-    console.log(id);
-    console.log(state);
     const token = sessionStorage.getItem("token");
     if (!token) {
       throw new Error("Token not found. User may not be authenticated.");
@@ -167,7 +164,6 @@ async function updateTaskState(id, state) {
 
     if (response.ok) {
       const data = await response.json();
-      console.log(data); // Log the response data
     } else {
       const errorData = await response.json(); // Get error response
       console.log(errorData);
@@ -219,7 +215,6 @@ async function sendToBackend(task) {
     });
     if (response.ok) {
       let data = await response.json();
-      console.log(data);
     } else {
       throw new Error("Error while saving data");
     }
