@@ -11,7 +11,7 @@ const taskShema = Schema({
   state: String,
   date: String,
   time: String,
-  userId: objectId,
+  userId: mongoose.Schema.Types.ObjectId,
 });
 
 const taskModel = mongoose.model("tasks", taskShema);

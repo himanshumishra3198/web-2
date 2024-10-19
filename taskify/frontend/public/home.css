@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.container {
+  background-color: #222831;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.box {
+  background-color: #31363f;
+  display: flex;
+  color: #eeeeee;
+  flex-direction: column;
+  justify-content: center;
+  height: 250px;
+  width: 400px;
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px black;
+  padding: 10px 0;
+}
+.login {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: center;
+  margin: 10px;
+}
+.login input {
+  margin: 5px 0;
+  width: 350px;
+  border-radius: 5px;
+  border: 2px solid #eeeeee;
+  background-color: #181c14;
+  padding: 5px;
+  color: #eeeeee;
+}
+.login .btn {
+  padding: 7px 15px;
+  margin-top: 15px;
+  width: auto;
+}
+.box div a {
+  color: #eeeeee;
+}

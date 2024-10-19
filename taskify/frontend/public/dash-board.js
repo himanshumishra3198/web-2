@@ -1,4 +1,31 @@
-taskList = [];
+let taskList = [];
+window.onload = () => {
+  fetchTasks();
+};
+
+async function fetchTasks() {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch("/getTask", {
+      methon: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${token}`,
+      },
+    });
+    if (response.ok) {
+      let data = await response.json();
+      console.log();
+      taskList = data.tasks;
+      console.log(taskList);
+      renderList();
+    } else {
+      throw new Error("Error fetchin task");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 function injectHtml(displayDiv, state) {
   displayDiv.innerHTML = taskList
@@ -6,7 +33,9 @@ function injectHtml(displayDiv, state) {
     .map(
       (task) =>
         `
+      
       <div class="task" draggable="true">
+      <div style="display:none;">${task._id}</div>
         <div class="up">
           <div class="taskTitle">${task.title}</div>
           <div class="taskDescription">${task.content}</div>
@@ -46,26 +75,42 @@ function handleDragStart(e) {
 
   doContainer.addEventListener("dragover", (e) => e.preventDefault());
   doContainer.addEventListener("drop", (e) => {
-    if (selected) doBox.appendChild(selected);
+    if (selected) {
+      doBox.appendChild(selected);
+      const id = selected.firstElementChild.innerText;
+      updateState(id, "do");
+    }
 
     selected = null;
   });
 
   progressContainer.addEventListener("dragover", (e) => e.preventDefault());
   progressContainer.addEventListener("drop", (e) => {
-    if (selected) progressBox.appendChild(selected);
+    if (selected) {
+      doBox.appendChild(selected);
+      const id = selected.firstElementChild.innerText;
+      updateState(id, "progress");
+    }
     selected = null;
   });
 
   reviewContainer.addEventListener("dragover", (e) => e.preventDefault());
   reviewContainer.addEventListener("drop", (e) => {
-    if (selected) reviewBox.appendChild(selected);
+    if (selected) {
+      doBox.appendChild(selected);
+      const id = selected.firstElementChild.innerText;
+      updateState(id, "review");
+    }
     selected = null;
   });
 
   finishContainer.addEventListener("dragover", (e) => e.preventDefault());
   finishContainer.addEventListener("drop", (e) => {
-    if (selected) finishBox.appendChild(selected);
+    if (selected) {
+      doBox.appendChild(selected);
+      const id = selected.firstElementChild.innerText;
+      updateState(id, "finish");
+    }
     selected = null;
   });
 }
@@ -96,7 +141,29 @@ function renderList() {
   injectHtml(finishBoxDisplayDiv, "finish");
 }
 
-function handleSave(event) {
+async function sendToBackend(task) {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("/addTask", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${token}`,
+      },
+      body: JSON.stringify({ task }),
+    });
+    if (response.ok) {
+      let data = await response.json();
+      console.log(data);
+    } else {
+      throw new Error("Error while saving data");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+async function handleSave(event) {
   let title = event.target[0].value;
   let content = event.target[1].value;
   let difficulty = event.target[2].value;
@@ -110,8 +177,8 @@ function handleSave(event) {
   newTask.date = date;
   newTask.time = getCurrentTimeInIST();
 
-  taskList.push(newTask);
-  renderList();
+  await sendToBackend(newTask);
+  fetchTasks();
 
   showSavedNotification();
 
