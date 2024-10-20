@@ -20,7 +20,7 @@ async function fetchTasks() {
 
       renderList();
     } else {
-      throw new Error("Error fetchin task");
+      throw new Error("Error fetching task");
     }
   } catch (e) {
     console.log(e);
