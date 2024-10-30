@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+}
+.timeInput {
+  border: none;
+  border-bottom: 2px solid white;
+  background-color: black;
+  outline: none;
+  text-align: center;
+  color: white;
+  font-size: 24px;
+  width: 75px;
+}
+.playButton {
+  background-color: rgb(230, 226, 226);
+  border-radius: 40px;
+  cursor: pointer;
+  padding: 8px;
+}
+.playButton:hover {
+  background-color: rgb(126, 124, 124);
+}
