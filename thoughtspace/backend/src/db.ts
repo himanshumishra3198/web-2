@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 
 const userShema = new Schema({
   username: { type: String, unique: true },
@@ -7,6 +7,18 @@ const userShema = new Schema({
 
 export const userModel = model("User", userShema);
 
-// const contentShema = new Schema({
-//   type: "document" | "number",
-// });
+const contentSchema = new Schema({
+  title: String,
+  link: String,
+  tags: [{ type: Types.ObjectId, ref: "Tag" }],
+  userId: { type: Types.ObjectId, ref: "User", required: true },
+});
+
+export const contentModel = model("Content", contentSchema);
+
+const linkSchema = new Schema({
+  hash: String,
+  userId: { type: Types.ObjectId, ref: "User", required: true, unique: true },
+});
+
+export const linkModel = model("Links", linkSchema);
