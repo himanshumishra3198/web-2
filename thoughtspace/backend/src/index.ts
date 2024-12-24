@@ -172,28 +172,67 @@ app.delete(
   }
 );
 
-app.post("/api/v1/thought/share", async (req: Request, res: Response) => {
-  const share = req.body.share;
-  if (share) {
-    const existingLink = await linkModel.findOne({ userId: req.body._id });
-    if (existingLink) {
-      res.status(200).json({
-        hash: existingLink.hash,
+app.post(
+  "/api/v1/thought/share",
+  userMiddleware,
+  async (req: Request, res: Response) => {
+    const share = req.body.share;
+    if (share) {
+      const existingLink = await linkModel.findOne({ userId: req.body._id });
+      if (existingLink) {
+        res.status(200).json({
+          hash: existingLink.hash,
+        });
+        return;
+      }
+      const hash = random(10);
+      await linkModel.create({
+        userId: req.body._id,
+        hash: hash,
       });
-      return;
+      res.status(200).json({
+        hash: hash,
+      });
+    } else {
+      await linkModel.deleteOne({
+        userId: req.body._id,
+      });
+      res.status(200).json({
+        message: "Link deleted successfully",
+      });
     }
-    const hash = random(10);
-    await linkModel.create({
-      userId: req.body._id,
-      hash: hash,
-    });
-    res.status(200).json({
-      hash: hash,
-    });
   }
-});
+);
 
-app.get("/api/v1/thought/:shareLink", (req: Request, res: Response) => {});
+app.get(
+  "/api/v1/thought/:shareLink",
+
+  async (req: Request, res: Response) => {
+    const hash = req.params.shareLink;
+    try {
+      const link = await linkModel.findOne({
+        hash: hash,
+      });
+      if (link) {
+        const sharedUserId = link.userId;
+        const sharedContent = await contentModel
+          .find({ userId: sharedUserId })
+          .populate("userId", "username");
+        res.status(200).json({
+          content: sharedContent,
+        });
+      } else {
+        res.status(403).json({
+          message: "share link is not valid",
+        });
+      }
+    } catch (e) {
+      res.status(500).json({
+        message: e,
+      });
+    }
+  }
+);
 
 app.listen(PORT, () => {
   console.log("App is listening on port ", PORT);
