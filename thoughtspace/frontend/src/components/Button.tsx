@@ -1,36 +1,28 @@
 import { ReactElement } from "react";
 
-export interface buttonProps {
+export interface ButtonProps {
   variant: "primary" | "secondary";
-  size: "sm" | "md" | "lg";
   text: String;
   startIcon?: ReactElement;
-  endIcon?: ReactElement;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
-const buttonSize = {
-  sm: "py-1.5 px-3 text-sm",
-  md: "py-3.5 px-5 text-lg",
-  lg: "py-2.5 px-4 text-xl",
+const variantClasses = {
+  primary: "bg-purple-600 text-white",
+  secondary: "bg-purple-200 text-purple-600",
 };
+const defaultStyles = "px-4 py-2 rounded-md font-light";
 
-export const Button = (props: buttonProps) => {
+export const Button = ({ variant, text, startIcon, onClick }: ButtonProps) => {
   return (
-    <div>
-      <button
-        className={`${
-          props.variant === "primary"
-            ? "bg-blue-700 hover:bg-blue-800 text-white"
-            : "bg-blue-400 hover:bg-blue-500 text-black"
-        } ${buttonSize[props.size]} rounded-md`}
-        onClick={props.onClick}
-      >
-        <div className="flex">
-          {props.startIcon}
-          <div className="px-2">{props.text}</div>
-        </div>
-      </button>
-    </div>
+    <button
+      className={variantClasses[variant] + " " + defaultStyles}
+      onClick={onClick}
+    >
+      <div className="flex items-center">
+        {startIcon}
+        <div className="pl-2">{text}</div>
+      </div>
+    </button>
   );
 };
