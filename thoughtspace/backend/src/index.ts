@@ -5,6 +5,7 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { userMiddleware } from "./authMiddleware";
+import cors from "cors";
 
 import { contentModel, linkModel, userModel } from "./db";
 import { random } from "./utils";
@@ -12,6 +13,8 @@ const PORT: number = 3000;
 
 const app = express();
 app.use(express.json());
+app.use(cors());
+
 const MONGO_URL = process.env.MONGO_URL ? process.env.MONGO_URL : "";
 mongoose.connect(MONGO_URL);
 
@@ -24,7 +27,7 @@ app.post(
   async (req: Request, res: Response): Promise<any> => {
     const username = req.body.username;
     const password = req.body.password;
-
+    console.log(password);
     const userSchema = z.object({
       username: z
         .string()
@@ -129,6 +132,7 @@ app.post(
         userId: req.body._id,
         title: req.body.title,
         link: req.body.link,
+        type: req.body.type,
       });
       res.status(200).json({
         message: "saved successfully",
@@ -152,6 +156,7 @@ app.get(
         userId: userId,
       })
       .populate("userId", "username");
+
     res.status(200).json({
       contents,
     });
@@ -162,8 +167,9 @@ app.delete(
   "/api/v1/content",
   userMiddleware,
   async (req: Request, res: Response) => {
+    console.log(req.body);
     await contentModel.deleteMany({
-      contentId: req.body.contentId,
+      contentId: req.params.contentId,
       userId: req.body._id,
     });
     res.status(200).json({

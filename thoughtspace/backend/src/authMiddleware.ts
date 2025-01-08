@@ -6,6 +6,13 @@ export const userMiddleware = (
   next: NextFunction
 ) => {
   const token = req.headers["authorization"];
+  if (!token) {
+    res.status(401).json({
+      message: "Please provide token",
+    });
+    return;
+  }
+
   const decoded = jwt.verify(token as string, process.env.JWT_SECRET as string);
 
   if (decoded) {

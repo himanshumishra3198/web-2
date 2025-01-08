@@ -10,6 +10,7 @@ export const userModel = model("User", userShema);
 const contentSchema = new Schema({
   title: String,
   link: String,
+  type: String,
   tags: [{ type: Types.ObjectId, ref: "Tag" }],
   userId: { type: Types.ObjectId, ref: "User", required: true },
 });
