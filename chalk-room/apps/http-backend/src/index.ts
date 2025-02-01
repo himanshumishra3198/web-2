@@ -80,13 +80,28 @@ app.post("/room", auth, async (req: Request, res: Response) => {
   const room = await prismaClient.room.create({
     data: {
       slug: parsed.data.name,
-      //@ts-ignore
+      // @ts-ignore
       adminId: req.userId,
     },
   });
   res.status(200).json({
     roomId: room.id,
   });
+});
+
+app.post("/slug_to_id/:slug", auth, async (req, res) => {
+  const slug = req.params.slug;
+  const room = await prismaClient.room.findFirst({
+    where: {
+      slug,
+    },
+  });
+
+  if (room) {
+    res.status(200).json({
+      roomId: room.id,
+    });
+  }
 });
 
 app.listen(3001);
