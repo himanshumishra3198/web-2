@@ -89,7 +89,22 @@ app.post("/room", auth, async (req: Request, res: Response) => {
   });
 });
 
-app.post("/slug_to_id/:slug", auth, async (req, res) => {
+app.get("/chats/:roomId", async (req, res) => {
+  const messages = await prismaClient.chat.findMany({
+    where: {
+      roomId: Number(req.params.roomId),
+    },
+    orderBy: {
+      id: "desc",
+    },
+    take: 30,
+  });
+  res.status(200).json({
+    messages,
+  });
+});
+
+app.get("/room/:slug", auth, async (req, res) => {
   const slug = req.params.slug;
   const room = await prismaClient.room.findFirst({
     where: {
@@ -97,11 +112,9 @@ app.post("/slug_to_id/:slug", auth, async (req, res) => {
     },
   });
 
-  if (room) {
-    res.status(200).json({
-      roomId: room.id,
-    });
-  }
+  res.status(200).json({
+    room,
+  });
 });
 
 app.listen(3001);
