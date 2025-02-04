@@ -2,28 +2,28 @@
 import { Button } from "@repo/ui/button";
 import { InputBox } from "@repo/ui/input";
 import axios from "axios";
-import { BACKEND_URL } from "../configs";
-
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
-
-export default function Signup() {
-  const nameRef = useRef<HTMLInputElement>(null);
+import { BACKEND_URL } from "../configs";
+export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  async function handleSignup() {
+  async function handleLogin() {
+    console.log("hello");
     try {
-      if (!(nameRef.current && emailRef.current && passwordRef.current)) {
+      console.log(emailRef.current?.value);
+      console.log(passwordRef.current?.value);
+      if (!(emailRef.current && passwordRef.current)) {
         return;
       }
-      const response = await axios.post(BACKEND_URL + "/signup", {
-        name: nameRef.current.value,
+      const response = await axios.post(BACKEND_URL + "/login", {
         email: emailRef.current.value,
         password: passwordRef.current.value,
       });
-      if (response.status === 201) {
-        router.push("/signin");
+      if (response.status === 200) {
+        localStorage.setItem("token", response.data.token);
+        router.push("/dashboard");
       } else {
         console.log(response.data);
       }
@@ -38,7 +38,6 @@ export default function Signup() {
           Chalk
         </div>
         <div className="flex items-center flex-col gap-4">
-          <InputBox reference={nameRef} placeholder="name" type="text" />
           <InputBox reference={emailRef} placeholder="email" type="text" />
           <InputBox
             reference={passwordRef}
@@ -47,7 +46,13 @@ export default function Signup() {
           />
         </div>
         <div className="text-white p-4 flex items-center justify-center">
-          <Button text="Signup" onClick={handleSignup} variant="secondary" />
+          <Button
+            text="Login"
+            variant="secondary"
+            onClick={() => {
+              handleLogin();
+            }}
+          />
         </div>
       </div>
     </div>

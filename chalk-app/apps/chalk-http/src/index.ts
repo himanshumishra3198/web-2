@@ -1,5 +1,6 @@
 import express from "express";
 import { prismaClient } from "@repo/db/client";
+import cors from "cors";
 import jwt from "jsonwebtoken";
 import {
   CreateUserSchema,
@@ -11,6 +12,7 @@ import { auth } from "./middleware";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.post("/signup", async (req, res) => {
   const parsedData = CreateUserSchema.safeParse(req.body);
