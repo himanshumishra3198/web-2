@@ -15,15 +15,31 @@ model User {
   photo String?
   chats Chat[]
   rooms Room[]
+  
+  joinedRooms RoomUser[] 
 }
 
 model Room  {
   id Int @id @default(autoincrement())
   slug String @unique
+  description String? 
   adminId String  
   createdAt DateTime @default(now())
   admin User @relation(fields: [adminId], references: [id])
   chats Chat[]
+  
+  joinedUsers RoomUser[] 
+}
+
+
+model RoomUser {
+  userId String @unique
+  roomId Int @unique
+
+  user User @relation(fields: [userId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
+
+  @@id([userId, roomId]) // Composite primary key
 }
 
 model Chat  {
@@ -34,3 +50,4 @@ model Chat  {
   user  User   @relation(fields: [userId], references: [id])
   room  Room   @relation(fields: [roomId], references: [id])
 }
+

@@ -64,18 +64,103 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/room", auth, async (req, res) => {
+app.use(auth);
+
+app.post("/room", async (req, res) => {
   const parsedData = CreateRoomSchema.safeParse(req.body);
+  //@ts-ignore
+  console.log(req.userId);
   try {
     const room = await prismaClient.room.create({
       data: {
         slug: req.body.slug,
+        description: req.body.description || "",
         // @ts-ignore
         adminId: req.userId,
       },
     });
+
+    await prismaClient.roomUser.create({
+      data: {
+        //@ts-ignore
+        userId: req.userId,
+        roomId: room.id,
+      },
+    });
+
     res.status(200).json({
       room,
+    });
+  } catch (e) {
+    res.status(401).json({
+      message: e,
+    });
+  }
+});
+
+app.get("/slugToRoom/:slug", async (req, res) => {
+  try {
+    const room = await prismaClient.room.findFirst({
+      where: {
+        slug: req.params.slug,
+      },
+    });
+    res.status(200).json({
+      room,
+    });
+  } catch (e) {
+    res.status(401).json({
+      message: e,
+    });
+  }
+});
+
+app.post("/joinRoom/:roomId", async (req, res) => {
+  try {
+    const existingEntry = await prismaClient.roomUser.findFirst({
+      where: {
+        roomId: Number(req.params.roomId),
+        //@ts-ignore
+        userId: req.userId,
+      },
+    });
+
+    if (existingEntry) {
+      res.status(402).json({
+        message: "User has already joined the room",
+      });
+      return;
+    }
+    await prismaClient.roomUser.create({
+      data: {
+        roomId: Number(req.params.roomId),
+        //@ts-ignore
+        userId: req.userId,
+      },
+    });
+
+    res.status(200).json({
+      message: "succesfully joined",
+    });
+  } catch (e) {
+    res.status(401).json({
+      message: e,
+    });
+  }
+});
+
+app.post("/leaveRoom/:roomId", async (req, res) => {
+  try {
+    await prismaClient.roomUser.delete({
+      where: {
+        roomId: Number(req.params.roomId),
+        //@ts-ignore
+        userId: req.userId,
+      },
+    });
+
+    res.status(200).json({
+      message: "leave successful",
     });
   } catch (e) {
     res.status(401).json({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Play } from "./play";
+import { InitDraw } from "../../../../draw";
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -24,17 +24,13 @@ export default function Canvas() {
     return () => window.removeEventListener("resize", updateCanvasSize);
   }, []);
 
-  function help() {
+  useEffect(() => {
     if (!canvasRef.current) return;
     const myCanvas = canvasRef.current;
     const ctx = myCanvas.getContext("2d");
     if (!ctx) return;
-    Play({ myCanvas, ctx });
-  }
-
-  useEffect(() => {
-    help();
-  }, [canvasSize]);
+    InitDraw({ myCanvas, ctx });
+  }, [canvasSize, canvasRef]);
 
   return (
     <div className="h-screen w-screen bg-black grid grid-cols-8 grid-rows-1">

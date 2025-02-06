@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
-
+import { Shape } from "./shapes";
+import { clearCanvas } from "./utils";
 interface PlayProps {
   myCanvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -11,11 +12,12 @@ function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
   const y = event.clientY - rect.top;
   return { x, y };
 }
-export function Play({ myCanvas, ctx }: PlayProps) {
+
+const existingShapes: Shape[] = [];
+
+export function InitDraw({ myCanvas, ctx }: PlayProps) {
   if (!ctx) return;
-  // ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-  //   ctx.strokeStyle = "white";
-  //   ctx.strokeRect(0, 0, 100, 100);
+
   let clicked = false;
   let startX = 0,
     startY = 0;
@@ -30,11 +32,20 @@ export function Play({ myCanvas, ctx }: PlayProps) {
 
   myCanvas.addEventListener("mouseup", (e) => {
     clicked = false;
+    let { x, y } = getMousePosition(myCanvas, e);
+
+    existingShapes.push({
+      type: "rect",
+      x: startX,
+      y: startY,
+      height: x - startX,
+      width: y - startY,
+    });
   });
 
   myCanvas.addEventListener("mousemove", (e) => {
     if (clicked) {
-      ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+      clearCanvas(ctx, myCanvas, existingShapes);
       ctx.strokeStyle = "white";
       let { x, y } = getMousePosition(myCanvas, e);
       ctx.strokeRect(startX, startY, x - startX, y - startY);

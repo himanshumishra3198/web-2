@@ -23,7 +23,7 @@ export default function Signup() {
         password: passwordRef.current.value,
       });
       if (response.status === 201) {
-        router.push("/signin");
+        router.push("/login");
       } else {
         console.log(response.data);
       }

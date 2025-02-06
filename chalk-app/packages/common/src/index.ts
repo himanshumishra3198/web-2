@@ -12,7 +12,7 @@ export const SigninUserSchema = z.object({
 });
 
 export const CreateRoomSchema = z.object({
-  name: z.string().min(3).max(20),
+  slug: z.string().min(3).max(20),
 });
 
 export const JWT_SECRET = process.env.JWT_SECRET || "1234";

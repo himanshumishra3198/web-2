@@ -11,7 +11,9 @@
     "./styles.css": "./dist/index.css",
     "./card": "./src/card.tsx",
     "./button": "./src/button.tsx",
-    "./input": "./src/inputBox.tsx"
+    "./input": "./src/inputBox.tsx",
+    "./actionButton": "./src/actionButton.tsx",
+    "./roomCard": "./src/roomCard.tsx"
   },
   "license": "MIT",
   "scripts": {
@@ -32,5 +34,8 @@
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
     "typescript": "5.7.3"
+  },
+  "dependencies": {
+    "lucide-react": "^0.474.0"
   }
 }
