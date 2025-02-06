@@ -66,7 +66,7 @@ app.post("/login", async (req, res) => {
 
 app.use(auth);
 
-app.post("/room", async (req, res) => {
+app.get("/room", async (req, res) => {
   const parsedData = CreateRoomSchema.safeParse(req.body);
   //@ts-ignore
   console.log(req.userId);

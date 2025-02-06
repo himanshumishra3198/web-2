@@ -5,6 +5,7 @@ import { RoomCard } from "@repo/ui/roomCard";
 import { ActionButton } from "@repo/ui/actionButton";
 import { useState } from "react";
 import { CreateRoom } from "./component/createRoom";
+import { JoinRoom } from "./component/joinRoom";
 
 const rooms = [
   {
@@ -31,14 +32,14 @@ const rooms = [
 
 const Index = () => {
   let [createRoomOpen, setCreateRoomOpen] = useState(false);
+  let [joinRoomOpen, setJoinRoomOpen] = useState(false);
 
   const handleCreateRoom = () => {
     setCreateRoomOpen(true);
-    // console.log("Create room clicked");
   };
 
   const handleJoinRoom = () => {
-    console.log("Join room clicked");
+    setJoinRoomOpen(true);
   };
 
   return (
@@ -47,6 +48,12 @@ const Index = () => {
         open={createRoomOpen}
         onClose={() => {
           setCreateRoomOpen(false);
+        }}
+      />
+      <JoinRoom
+        open={joinRoomOpen}
+        onClose={() => {
+          setJoinRoomOpen(false);
         }}
       />
       <Sidebar />

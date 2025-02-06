@@ -23,7 +23,7 @@ export function Button({
   return (
     <button
       onClick={onClick}
-      className={`${disabled && variant === "secondary" ? "bg-white/10" : ""} ui-cursor-pointer font-mono ${ButtonVariant[variant]} flex gap-2 ui-items-center ui-justify-center`}
+      className={`${disabled && variant === "secondary" ? "bg-white/10" : ""} cursor-pointer font-mono ${ButtonVariant[variant]} flex gap-2 items-center ui-justify-center`}
       disabled={disabled}
     >
       {icon} {text}

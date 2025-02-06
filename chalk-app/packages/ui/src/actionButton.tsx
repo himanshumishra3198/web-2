@@ -21,7 +21,7 @@ export const ActionButton = ({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${variantClasses}`}
+      className={`ui-cursor-pointer flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${variantClasses}`}
     >
       <Icon className="w-5 h-5" />
       <span>{label}</span>
