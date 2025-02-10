@@ -2,10 +2,40 @@
 
 import { useEffect, useRef, useState } from "react";
 import { InitDraw } from "../../../../draw";
+import { BACKEND_URL, WEBSOCKET_URL } from "../../../configs";
+import axios from "axios";
+import { useGiveRoom } from "../../../../hooks/useGiveRoom";
 
-export default function Canvas() {
+export default function Canvas({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const socket = useRef<WebSocket | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const { loading, room, error } = useGiveRoom(params);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const ws = new WebSocket(`${WEBSOCKET_URL}?token=${token}`);
+    ws.onopen = () => {
+      if (!room)
+        return () => {
+          ws.close();
+        };
+      ws.send(
+        JSON.stringify({
+          type: "join_room",
+          roomId: room.id,
+        })
+      );
+    };
+    socket.current = ws;
+    return () => {
+      ws.close();
+    };
+  }, [room?.id]);
 
   useEffect(() => {
     const updateCanvasSize = () => {
@@ -29,7 +59,7 @@ export default function Canvas() {
     const myCanvas = canvasRef.current;
     const ctx = myCanvas.getContext("2d");
     if (!ctx) return;
-    InitDraw({ myCanvas, ctx });
+    InitDraw({ myCanvas, ctx, ws: socket.current, room });
   }, [canvasSize, canvasRef]);
 
   return (

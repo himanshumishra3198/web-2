@@ -3,42 +3,23 @@ import { PlusCircle, UserPlus } from "lucide-react";
 import { Sidebar } from "./component/sidebar";
 import { RoomCard } from "@repo/ui/roomCard";
 import { ActionButton } from "@repo/ui/actionButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CreateRoom } from "./component/createRoom";
 import { JoinRoom } from "./component/joinRoom";
-
-const rooms = [
-  {
-    name: "General Discussion",
-    memberCount: 150,
-    description: "A place for general discussions and community chat.",
-  },
-  {
-    name: "Tech Talk",
-    memberCount: 89,
-    description: "Discuss the latest in technology and development.",
-  },
-  {
-    name: "Random",
-    memberCount: 234,
-    description: "Share anything interesting you find on the internet.",
-  },
-  {
-    name: "Project Alpha",
-    memberCount: 45,
-    description: "Coordination and updates for Project Alpha.",
-  },
-];
+import { useRooms } from "../../hooks/useRooms";
+import Link from "next/link";
 
 const Index = () => {
   let [createRoomOpen, setCreateRoomOpen] = useState(false);
   let [joinRoomOpen, setJoinRoomOpen] = useState(false);
 
+  let { loading, rooms, error } = useRooms([createRoomOpen, joinRoomOpen]);
   const handleCreateRoom = () => {
     setCreateRoomOpen(true);
   };
 
   const handleJoinRoom = () => {
+    console.log(rooms);
     setJoinRoomOpen(true);
   };
 
@@ -90,14 +71,25 @@ const Index = () => {
               Your Rooms
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rooms.map((room) => (
-                <RoomCard
-                  key={room.name}
-                  slug={room.name}
-                  memberCount={room.memberCount}
-                  description={room.description}
-                />
-              ))}
+              {!loading &&
+                rooms.map(
+                  (room: {
+                    id: string;
+                    slug: string;
+                    _count: { joinedUsers: number };
+                    description: string;
+                  }) => (
+                    <div key={room.id}>
+                      <Link href={`/dashboard/room/${room.slug}`}>
+                        <RoomCard
+                          slug={room.slug}
+                          memberCount={room._count.joinedUsers}
+                          description={room.description}
+                        />
+                      </Link>
+                    </div>
+                  )
+                )}
             </div>
           </div>
         </div>

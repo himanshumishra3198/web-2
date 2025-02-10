@@ -10,6 +10,14 @@ import {
 } from "@repo/common/config";
 import { auth } from "./middleware";
 
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string; //or other type you would like to use
+    }
+  }
+}
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -36,7 +44,7 @@ app.post("/signup", async (req, res) => {
       return;
     }
   } else {
-    res.status(401).json({
+    res.status(400).json({
       error: parsedData.error,
     });
   }
@@ -66,23 +74,30 @@ app.post("/login", async (req, res) => {
 
 app.use(auth);
 
-app.get("/room", async (req, res) => {
+app.post("/room", async (req, res) => {
   const parsedData = CreateRoomSchema.safeParse(req.body);
-  //@ts-ignore
-  console.log(req.userId);
+  if (!req.userId) {
+    console.log("userId is not present");
+    return;
+  }
+  if (!parsedData.success) {
+    res.status(401).json({
+      message: parsedData.error,
+    });
+    return;
+  }
   try {
     const room = await prismaClient.room.create({
       data: {
         slug: req.body.slug,
-        description: req.body.description || "",
-        // @ts-ignore
+        description: req.body.description || null,
+
         adminId: req.userId,
       },
     });
 
     await prismaClient.roomUser.create({
       data: {
-        //@ts-ignore
         userId: req.userId,
         roomId: room.id,
       },
@@ -92,7 +107,42 @@ app.get("/room", async (req, res) => {
       room,
     });
   } catch (e) {
+    console.log(e);
     res.status(401).json({
+      message: e,
+    });
+  }
+});
+
+app.get("/rooms", async (req, res) => {
+  try {
+    if (!req.userId) {
+      console.log("userId is not present");
+      return;
+    }
+    const rooms = await prismaClient.room.findMany({
+      where: {
+        joinedUsers: {
+          some: {
+            userId: req.userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        description: true,
+        _count: {
+          select: { joinedUsers: true }, // Counts the number of users
+        },
+      },
+    });
+
+    res.status(200).json({
+      rooms,
+    });
+  } catch (e) {
+    res.status(403).json({
       message: e,
     });
   }
@@ -115,12 +165,33 @@ app.get("/slugToRoom/:slug", async (req, res) => {
   }
 });
 
+app.get("/chat/:roomId", async (req, res) => {
+  try {
+    const messages = await prismaClient.chat.findMany({
+      where: {
+        roomId: Number(req.params.roomId),
+      },
+    });
+    res.status(200).json({
+      messages,
+    });
+  } catch (e) {
+    res.status(400).json({
+      message: e,
+    });
+  }
+});
+
 app.post("/joinRoom/:roomId", async (req, res) => {
   try {
+    if (!req.userId) {
+      console.log("userId is not present");
+      return;
+    }
     const existingEntry = await prismaClient.roomUser.findFirst({
       where: {
         roomId: Number(req.params.roomId),
-        //@ts-ignore
+
         userId: req.userId,
       },
     });
@@ -134,7 +205,7 @@ app.post("/joinRoom/:roomId", async (req, res) => {
     await prismaClient.roomUser.create({
       data: {
         roomId: Number(req.params.roomId),
-        //@ts-ignore
+
         userId: req.userId,
       },
     });
@@ -151,13 +222,46 @@ app.post("/joinRoom/:roomId", async (req, res) => {
 
 app.post("/leaveRoom/:roomId", async (req, res) => {
   try {
+    if (!req.userId) {
+      console.log("userId is not present");
+      return;
+    }
+    const userId = req.userId;
+    const roomId = Number(req.params.roomId);
+
     await prismaClient.roomUser.delete({
       where: {
-        roomId: Number(req.params.roomId),
-        //@ts-ignore
-        userId: req.userId,
+        userId_roomId: { userId, roomId },
       },
     });
+
+    // check if the user was owner of the room if yes then reassign to another user
+    const room = await prismaClient.room.findFirst({
+      where: {
+        id: roomId,
+      },
+    });
+    if (room && room.adminId === userId) {
+      const newAdmin = await prismaClient.roomUser.findFirst({
+        where: {
+          roomId: roomId,
+        },
+        select: { userId: true },
+      });
+
+      if (newAdmin) {
+        await prismaClient.room.update({
+          where: { id: roomId },
+          data: { adminId: newAdmin.userId },
+        });
+      } else {
+        await prismaClient.room.delete({
+          where: {
+            id: roomId,
+          },
+        });
+      }
+    }
 
     res.status(200).json({
       message: "leave successful",

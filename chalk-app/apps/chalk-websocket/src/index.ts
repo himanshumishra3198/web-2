@@ -62,6 +62,20 @@ wss.on("connection", (ws, req) => {
     ws.close();
     return;
   }
+
+  const existingUser = users.find((user) => user.userId === userId);
+  if (!existingUser) {
+    users.push({ userId, rooms: [], ws });
+  } else {
+    existingUser.ws = ws; // Update WebSocket connection
+  }
+
+  ws.on("close", () => {
+    // Remove disconnected users
+    const index = users.findIndex((user) => user.ws === ws);
+    if (index !== -1) users.splice(index, 1);
+  });
+
   users.push({
     userId,
     rooms: [],
@@ -78,18 +92,10 @@ wss.on("connection", (ws, req) => {
         user.rooms.push(parsedData.roomId);
     } else if (parsedData.type === "leave_room") {
       user.rooms = user.rooms.filter(
-        (roomId) => roomId === String(parsedData.roomId)
+        (roomId) => roomId !== String(parsedData.roomId)
       );
     } else if (parsedData.type === "chat") {
       const message = parsedData.message;
-
-      await prismaClient.chat.create({
-        data: {
-          roomId: parsedData.roomId,
-          message: parsedData.message,
-          userId: user.userId,
-        },
-      });
 
       users.map((eachUser) => {
         if (eachUser.rooms.includes(parsedData.roomId)) {
@@ -101,6 +107,13 @@ wss.on("connection", (ws, req) => {
             })
           );
         }
+      });
+      await prismaClient.chat.create({
+        data: {
+          roomId: parsedData.roomId,
+          message: parsedData.message,
+          userId: user.userId,
+        },
       });
     }
   });

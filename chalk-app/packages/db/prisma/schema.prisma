@@ -14,7 +14,7 @@ model User {
   name String
   photo String?
   chats Chat[]
-  rooms Room[]
+  rooms Room[] @relation("RoomAdmin")
   
   joinedRooms RoomUser[] 
 }
@@ -25,7 +25,7 @@ model Room  {
   description String? 
   adminId String  
   createdAt DateTime @default(now())
-  admin User @relation(fields: [adminId], references: [id])
+  admin User @relation("RoomAdmin", fields: [adminId], references: [id])
   chats Chat[]
   
   joinedUsers RoomUser[] 
@@ -33,13 +33,14 @@ model Room  {
 
 
 model RoomUser {
-  userId String @unique
-  roomId Int @unique
+  id Int @id @default(autoincrement())
+  userId String 
+  roomId Int 
 
   user User @relation(fields: [userId], references: [id])
   room Room @relation(fields: [roomId], references: [id])
 
-  @@id([userId, roomId]) // Composite primary key
+  @@unique([userId, roomId]) // Ensures a user cannot join the same room multiple times
 }
 
 model Chat  {

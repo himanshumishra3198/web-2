@@ -1,9 +1,11 @@
 import { ReactNode } from "react";
 import { Shape } from "./shapes";
-import { clearCanvas } from "./utils";
+import { clearCanvas, getExistingShapes } from "./utils";
 interface PlayProps {
   myCanvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  ws: WebSocket | null;
+  room: any;
 }
 
 function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -13,16 +15,25 @@ function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
   return { x, y };
 }
 
-const existingShapes: Shape[] = [];
+// const existingSh apes: Shape[] = [];
 
-export function InitDraw({ myCanvas, ctx }: PlayProps) {
-  if (!ctx) return;
+export async function InitDraw({ myCanvas, ctx, ws, room }: PlayProps) {
+  if (!ctx || !room || !ws) return;
+  let existingShapes: Shape[] = await getExistingShapes(room.id);
+  ws.onmessage = (e) => {
+    const message = JSON.parse(e.data);
+    if (message.type === "chat") {
+      existingShapes.push(JSON.parse(message.message));
+      clearCanvas(ctx, myCanvas, existingShapes);
+    }
+  };
 
+  clearCanvas(ctx, myCanvas, existingShapes);
   let clicked = false;
   let startX = 0,
     startY = 0;
+
   myCanvas.addEventListener("mousedown", (e) => {
-    console.log(typeof e);
     console.log(getMousePosition(myCanvas, e));
     clicked = true;
     let { x, y } = getMousePosition(myCanvas, e);
@@ -41,6 +52,21 @@ export function InitDraw({ myCanvas, ctx }: PlayProps) {
       height: x - startX,
       width: y - startY,
     });
+
+    const message = JSON.stringify({
+      type: "rect",
+      x: startX,
+      y: startY,
+      height: x - startX,
+      width: y - startY,
+    });
+    ws.send(
+      JSON.stringify({
+        type: "chat",
+        message: message,
+        roomId: room.id,
+      })
+    );
   });
 
   myCanvas.addEventListener("mousemove", (e) => {
