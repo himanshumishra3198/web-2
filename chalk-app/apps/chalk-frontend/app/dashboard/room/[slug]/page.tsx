@@ -55,12 +55,13 @@ export default function Canvas({
   }, []);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const myCanvas = canvasRef.current;
-    const ctx = myCanvas.getContext("2d");
-    if (!ctx) return;
-    InitDraw({ myCanvas, ctx, ws: socket.current, room });
-  }, [canvasSize, canvasRef]);
+    if (canvasRef.current) {
+      const myCanvas = canvasRef.current;
+      const ctx = myCanvas.getContext("2d");
+      // if (!ctx) return;
+      InitDraw({ myCanvas, ctx, ws: socket.current, room });
+    }
+  }, [canvasSize, canvasRef, room]);
 
   return (
     <div className="h-screen w-screen bg-black grid grid-cols-8 grid-rows-1">

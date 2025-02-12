@@ -4,17 +4,19 @@ import { Shape } from "./shapes";
 import { BACKEND_URL } from "../app/configs";
 
 export function clearCanvas(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | null,
   canvas: HTMLCanvasElement,
   existingShapes: Shape[]
 ) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  existingShapes.map((shape) => {
-    if (shape.type === "rect") {
-      (ctx.strokeStyle = "white"),
-        ctx.strokeRect(shape.x, shape.y, shape.height, shape.width);
-    }
-  });
+  if (ctx) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    existingShapes.map((shape) => {
+      if (shape.type === "rect") {
+        (ctx.strokeStyle = "white"),
+          ctx.strokeRect(shape.x, shape.y, shape.height, shape.width);
+      }
+    });
+  }
 }
 
 export async function getExistingShapes(roomId: number) {

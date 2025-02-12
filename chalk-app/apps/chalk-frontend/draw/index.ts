@@ -3,7 +3,7 @@ import { Shape } from "./shapes";
 import { clearCanvas, getExistingShapes } from "./utils";
 interface PlayProps {
   myCanvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
+  ctx: CanvasRenderingContext2D | null;
   ws: WebSocket | null;
   room: any;
 }
@@ -18,8 +18,10 @@ function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
 // const existingSh apes: Shape[] = [];
 
 export async function InitDraw({ myCanvas, ctx, ws, room }: PlayProps) {
-  if (!ctx || !room || !ws) return;
+  if (!room) return;
   let existingShapes: Shape[] = await getExistingShapes(room.id);
+  clearCanvas(ctx, myCanvas, existingShapes);
+  if (!ws) return;
   ws.onmessage = (e) => {
     const message = JSON.parse(e.data);
     if (message.type === "chat") {
@@ -28,7 +30,6 @@ export async function InitDraw({ myCanvas, ctx, ws, room }: PlayProps) {
     }
   };
 
-  clearCanvas(ctx, myCanvas, existingShapes);
   let clicked = false;
   let startX = 0,
     startY = 0;
@@ -70,7 +71,7 @@ export async function InitDraw({ myCanvas, ctx, ws, room }: PlayProps) {
   });
 
   myCanvas.addEventListener("mousemove", (e) => {
-    if (clicked) {
+    if (clicked && ctx) {
       clearCanvas(ctx, myCanvas, existingShapes);
       ctx.strokeStyle = "white";
       let { x, y } = getMousePosition(myCanvas, e);
