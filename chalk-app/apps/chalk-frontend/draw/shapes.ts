@@ -1,14 +1,39 @@
 export type Shape =
   | {
-      type: "rect";
+      type: "Rectangle";
       x: number;
       y: number;
       width: number;
       height: number;
     }
   | {
-      type: "circle";
+      type: "Circle";
       x: number;
       y: number;
       radius: number;
+    }
+  | {
+      type: "Diamond";
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  | {
+      type: "Line";
+      startX: number;
+      startY: number;
+      x: number;
+      y: number;
+    }
+  | {
+      type: "Arrow";
+      startX: number;
+      startY: number;
+      x: number;
+      y: number;
+    }
+  | {
+      type: "Pencil";
+      points: { x: number; y: number }[];
     };

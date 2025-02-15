@@ -138,6 +138,8 @@ app.get("/rooms", async (req, res) => {
       },
     });
 
+    console.log(rooms);
+
     res.status(200).json({
       rooms,
     });
