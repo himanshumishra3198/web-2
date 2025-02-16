@@ -16,8 +16,8 @@ export type Shape =
       type: "Diamond";
       x: number;
       y: number;
-      width: number;
-      height: number;
+      startX: number;
+      startY: number;
     }
   | {
       type: "Line";
@@ -36,4 +36,10 @@ export type Shape =
   | {
       type: "Pencil";
       points: { x: number; y: number }[];
+    }
+  | {
+      type: "Text";
+      text: string;
+      x: number;
+      y: number;
     };

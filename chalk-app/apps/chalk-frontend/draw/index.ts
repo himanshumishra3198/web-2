@@ -4,10 +4,11 @@ import {
   clearCanvas,
   createArrow,
   createCircle,
-  createDiamond,
   createLine,
   createPencil,
+  drawDiamond,
   getExistingShapes,
+  createText,
 } from "./utils";
 import { Circle } from "lucide-react";
 interface PlayProps {
@@ -16,6 +17,7 @@ interface PlayProps {
   ws: WebSocket | null;
   room: any;
   selectedTool: string;
+  signal: AbortSignal;
 }
 
 function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -25,6 +27,8 @@ function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
   return { x, y };
 }
 
+let existingShapes: Shape[] = [];
+
 // const existingSh apes: Shape[] = [];
 
 export async function InitDraw({
@@ -33,9 +37,11 @@ export async function InitDraw({
   ws,
   room,
   selectedTool,
+  signal,
 }: PlayProps) {
   if (!ctx || !ws || !room) return;
-  let existingShapes: Shape[] = await getExistingShapes(room.id);
+  console.log(selectedTool);
+  existingShapes = await getExistingShapes(room.id);
   clearCanvas(ctx, myCanvas, existingShapes);
 
   ws.onmessage = (e) => {
@@ -51,20 +57,20 @@ export async function InitDraw({
     startY = 0;
   let points: { x: number; y: number }[] = [];
 
-  myCanvas.addEventListener("mousedown", (e) => {
+  const mouseDownHandler = (e: MouseEvent) => {
     clicked = true;
     let { x, y } = getMousePosition(myCanvas, e);
 
     startX = x;
     startY = y;
     points = [{ x, y }];
-  });
-
-  myCanvas.addEventListener("mouseup", (e) => {
+  };
+  let message = "";
+  const mouseUpHandler = (e: MouseEvent) => {
     clicked = false;
     clearCanvas(ctx, myCanvas, existingShapes);
     let { x, y } = getMousePosition(myCanvas, e);
-    let message;
+
     if (selectedTool === "Rectangle") {
       existingShapes.push({
         type: "Rectangle",
@@ -81,13 +87,6 @@ export async function InitDraw({
         height: x - startX,
         width: y - startY,
       });
-      ws.send(
-        JSON.stringify({
-          type: "chat",
-          message: message,
-          roomId: room.id,
-        })
-      );
     } else if (selectedTool === "Circle") {
       const radius = Math.sqrt(
         (x - startX) * (x - startX) + (y - startY) * (y - startY)
@@ -104,37 +103,59 @@ export async function InitDraw({
         y: startY,
         radius: radius,
       });
+    } else if (selectedTool === "Text") {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.style.position = "absolute";
+      input.style.left = `${e.clientX}px`;
+      input.style.top = `${e.clientY}px`;
+      input.style.background = "transparent";
+      input.style.color = "white";
+      input.style.font = "16px Arial";
+      input.style.border = "none";
+      input.style.outline = "none";
+      document.body.appendChild(input);
+      input.focus();
 
-      ws.send(
-        JSON.stringify({
-          type: "chat",
-          message: message,
-          roomId: room.id,
-        })
+      input.addEventListener(
+        "blur",
+        (e) => {
+          console.log(e);
+          if (input.value.trim()) {
+            console.log(input.value);
+            existingShapes.push({
+              type: "Text",
+              x: x,
+              y: y,
+              text: input.value,
+            });
+            message = JSON.stringify({
+              type: "Text",
+              x: x,
+              y: y,
+              text: input.value,
+            });
+          }
+          document.body.removeChild(input);
+        },
+        { once: true }
       );
     } else if (selectedTool === "Diamond") {
       existingShapes.push({
         type: "Diamond",
-        x: startX,
-        y: startY,
-        height: x - startX,
-        width: y - startY,
+        startX: startX,
+        startY: startY,
+        x: x,
+        y: y,
       });
 
       message = JSON.stringify({
         type: "Diamond",
-        x: startX,
-        y: startY,
-        height: x - startX,
-        width: y - startY,
+        startX,
+        startY,
+        x,
+        y,
       });
-      ws.send(
-        JSON.stringify({
-          type: "chat",
-          message: message,
-          roomId: room.id,
-        })
-      );
     } else if (selectedTool === "Line") {
       existingShapes.push({
         type: "Line",
@@ -151,13 +172,6 @@ export async function InitDraw({
         x,
         y,
       });
-      ws.send(
-        JSON.stringify({
-          type: "chat",
-          message: message,
-          roomId: room.id,
-        })
-      );
     } else if (selectedTool === "Arrow") {
       existingShapes.push({
         type: "Arrow",
@@ -174,13 +188,6 @@ export async function InitDraw({
         x,
         y,
       });
-      ws.send(
-        JSON.stringify({
-          type: "chat",
-          message: message,
-          roomId: room.id,
-        })
-      );
     } else if (selectedTool === "Pencil") {
       existingShapes.push({
         type: "Pencil",
@@ -191,18 +198,24 @@ export async function InitDraw({
         type: "Pencil",
         points,
       });
-      ws.send(
-        JSON.stringify({
-          type: "chat",
-          message: message,
-          roomId: room.id,
-        })
-      );
+
       points = [];
     }
-  });
+    if (selectedTool !== "Select") {
+      if (message.length) {
+        ws.send(
+          JSON.stringify({
+            type: "chat",
+            message: message,
+            roomId: room.id,
+          })
+        );
+      }
+      clearCanvas(ctx, myCanvas, existingShapes);
+    }
+  };
 
-  myCanvas.addEventListener("mousemove", (e) => {
+  const mouseMoveHandler = (e: MouseEvent) => {
     if (clicked && ctx) {
       clearCanvas(ctx, myCanvas, existingShapes);
       ctx.strokeStyle = "white";
@@ -221,14 +234,7 @@ export async function InitDraw({
           ctx,
         });
       } else if (selectedTool === "Diamond") {
-        createDiamond({
-          x: x,
-          y: y,
-          height: x - startX,
-          width: y - startY,
-          color: "white",
-          ctx: ctx,
-        });
+        drawDiamond(ctx, startX, startY, x, y);
       } else if (selectedTool === "Line") {
         createLine({ startX, startY, x, y, color: "white", ctx });
       } else if (selectedTool === "Arrow") {
@@ -239,5 +245,9 @@ export async function InitDraw({
         createPencil({ ctx, points, color: "white" });
       }
     }
-  });
+  };
+
+  myCanvas.addEventListener("mousedown", mouseDownHandler, { signal });
+  myCanvas.addEventListener("mouseup", mouseUpHandler, { signal });
+  myCanvas.addEventListener("mousemove", mouseMoveHandler, { signal });
 }

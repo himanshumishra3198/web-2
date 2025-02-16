@@ -26,15 +26,23 @@ export function MainCanvas({ room, ws }: { room: any; ws: any }) {
 
     return () => window.removeEventListener("resize", updateCanvasSize);
   }, []);
+  const initDrawRef = useRef(false); // Track if InitDraw was called before
 
   useEffect(() => {
     if (canvasRef.current) {
       const myCanvas = canvasRef.current;
       const ctx = myCanvas.getContext("2d");
-      if (!ctx) return;
-      InitDraw({ myCanvas, ctx, ws, room, selectedTool });
+      if (!ctx || !room || !ws) return;
+      // Clear existing event listeners to avoid multiple listeners
+      const abortController = new AbortController();
+      const { signal } = abortController;
+      // Re-initialize drawing logic with the new selectedTool
+      InitDraw({ myCanvas, ctx, ws, room, selectedTool, signal });
+      return () => {
+        abortController.abort();
+      };
     }
-  }, [canvasSize, selectedTool]);
+  }, [canvasSize, selectedTool, room, ws]); // Re-run when canvasSize or selectedTool changes
 
   return (
     <div className="h-screen w-screen bg-black grid grid-cols-8 grid-rows-1">
@@ -43,7 +51,6 @@ export function MainCanvas({ room, ws }: { room: any; ws: any }) {
           selectedTool={selectedTool}
           changeTool={(tool) => {
             setSelectedTool(() => {
-              console.log(tool);
               return tool;
             });
           }}

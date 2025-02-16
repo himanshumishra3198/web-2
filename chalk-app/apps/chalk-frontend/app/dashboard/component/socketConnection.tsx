@@ -18,7 +18,6 @@ export function SocketConnection({ room }: { room: any }) {
     };
 
     return () => {
-      setSocket(null);
       ws.close();
     };
   }, []);
