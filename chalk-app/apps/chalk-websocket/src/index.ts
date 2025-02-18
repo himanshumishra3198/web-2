@@ -95,7 +95,7 @@ wss.on("connection", (ws, req) => {
         (roomId) => roomId !== String(parsedData.roomId)
       );
     } else if (parsedData.type === "chat") {
-      const message = parsedData.message;
+      let message = parsedData.message;
 
       users.map((eachUser) => {
         if (eachUser.rooms.includes(parsedData.roomId) && eachUser.ws !== ws) {
@@ -108,14 +108,22 @@ wss.on("connection", (ws, req) => {
           );
         }
       });
-
-      await prismaClient.chat.create({
-        data: {
-          roomId: parsedData.roomId,
-          message: parsedData.message,
-          userId: user.userId,
-        },
-      });
+      const parsedMessage = JSON.parse(message);
+      if (parsedMessage.type === "Eraser") {
+        await prismaClient.chat.deleteMany({
+          where: {
+            message: parsedMessage.shape,
+          },
+        });
+      } else {
+        await prismaClient.chat.create({
+          data: {
+            roomId: parsedData.roomId,
+            message: parsedData.message,
+            userId: user.userId,
+          },
+        });
+      }
     }
   });
 });

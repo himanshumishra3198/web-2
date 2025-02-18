@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Shape } from "./shapes";
+import { isPointInside } from "./utils";
 import {
   clearCanvas,
   createArrow,
@@ -47,7 +48,13 @@ export async function InitDraw({
   ws.onmessage = (e) => {
     const message = JSON.parse(e.data);
     if (message.type === "chat") {
-      existingShapes.push(JSON.parse(message.message));
+      const checkErase = JSON.parse(message.message);
+      if (checkErase.type === "Eraser") {
+        existingShapes.splice(checkErase.index, 1);
+      } else {
+        existingShapes.push(JSON.parse(message.message));
+      }
+
       clearCanvas(ctx, myCanvas, existingShapes);
     }
   };
@@ -201,7 +208,7 @@ export async function InitDraw({
 
       points = [];
     }
-    if (selectedTool !== "Select") {
+    if (selectedTool !== "Select" && selectedTool !== "Eraser") {
       if (message.length) {
         ws.send(
           JSON.stringify({
@@ -211,8 +218,8 @@ export async function InitDraw({
           })
         );
       }
-      clearCanvas(ctx, myCanvas, existingShapes);
     }
+    if (selectedTool !== "Select") clearCanvas(ctx, myCanvas, existingShapes);
   };
 
   const mouseMoveHandler = (e: MouseEvent) => {
@@ -220,7 +227,29 @@ export async function InitDraw({
       clearCanvas(ctx, myCanvas, existingShapes);
       ctx.strokeStyle = "white";
       let { x, y } = getMousePosition(myCanvas, e);
-      if (selectedTool === "Rectangle") {
+
+      if (selectedTool === "Eraser") {
+        const shapeIndex = existingShapes.findIndex((shape) => {
+          return isPointInside({ x, y }, shape);
+        });
+        if (shapeIndex !== -1) {
+          existingShapes.splice(shapeIndex, 1);
+          const message = JSON.stringify({
+            type: "Eraser",
+            index: shapeIndex,
+            shape: JSON.stringify(existingShapes[shapeIndex]),
+          });
+
+          ws.send(
+            JSON.stringify({
+              type: "chat",
+              message: message,
+              roomId: room.id,
+            })
+          );
+          clearCanvas(ctx, myCanvas, existingShapes);
+        }
+      } else if (selectedTool === "Rectangle") {
         ctx.strokeRect(startX, startY, x - startX, y - startY);
       } else if (selectedTool === "Circle") {
         const radius = Math.sqrt(

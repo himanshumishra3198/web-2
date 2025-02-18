@@ -88,20 +88,30 @@ export function createArrow({
   y: number;
 }) {
   if (ctx) {
-    var headlen = 10; // length of head in pixels
-    var dx = x - startX;
-    var dy = y - startY;
-    var angle = Math.atan2(dy, dx);
+    const headlen = 15; // length of arrowhead
+    const dx = x - startX;
+    const dy = y - startY;
+    const angle = Math.atan2(dy, dx);
+
+    ctx.beginPath();
     ctx.moveTo(startX, startY);
     ctx.lineTo(x, y);
-    ctx.lineTo(
-      x - headlen * Math.cos(angle - Math.PI / 6),
-      y - headlen * Math.sin(angle - Math.PI / 6)
-    );
+    ctx.stroke();
+
+    ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(
-      x - headlen * Math.cos(angle + Math.PI / 6),
-      y - headlen * Math.sin(angle + Math.PI / 6)
+      x - headlen * Math.cos(angle - Math.PI / 7),
+      y - headlen * Math.sin(angle - Math.PI / 7)
+    );
+    ctx.lineTo(
+      x - headlen * Math.cos(angle + Math.PI / 7),
+      y - headlen * Math.sin(angle + Math.PI / 7)
+    );
+    ctx.lineTo(x, y);
+    ctx.lineTo(
+      x - headlen * Math.cos(angle - Math.PI / 7),
+      y - headlen * Math.sin(angle - Math.PI / 7)
     );
     ctx.stroke();
   }
@@ -227,5 +237,101 @@ export async function getExistingShapes(roomId: number) {
   } else {
     console.log(res.data);
     return [];
+  }
+}
+
+export function isPointInside(
+  point: { x: number; y: number },
+  shape: Shape
+): boolean {
+  switch (shape.type) {
+    case "Rectangle":
+      return (
+        point.x >= shape.x &&
+        point.x <= shape.x + shape.width &&
+        point.y >= shape.y &&
+        point.y <= shape.y + shape.height
+      );
+
+    case "Circle":
+      const dist = Math.sqrt(
+        (point.x - shape.x) ** 2 + (point.y - shape.y) ** 2
+      );
+      return dist <= shape.radius;
+
+    case "Diamond":
+      const dx = Math.abs(point.x - (shape.startX + shape.x) / 2);
+      const dy = Math.abs(point.y - (shape.startY + shape.y) / 2);
+      const halfWidth = Math.abs(shape.x - shape.startX) / 2;
+      const halfHeight = Math.abs(shape.y - shape.startY) / 2;
+      return dx / halfWidth + dy / halfHeight <= 1;
+
+    case "Line":
+      const distanceToLine = (
+        p: { x: number; y: number },
+        a: { x: number; y: number },
+        b: { x: number; y: number }
+      ) => {
+        const len = Math.hypot(b.x - a.x, b.y - a.y);
+        if (len === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+        const t =
+          ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (len * len);
+        const clampedT = Math.max(0, Math.min(1, t));
+        const proj = {
+          x: a.x + clampedT * (b.x - a.x),
+          y: a.y + clampedT * (b.y - a.y),
+        };
+        return Math.hypot(p.x - proj.x, p.y - proj.y);
+      };
+      return (
+        distanceToLine(
+          point,
+          { x: shape.startX, y: shape.startY },
+          { x: shape.x, y: shape.y }
+        ) < 5
+      );
+
+    case "Arrow":
+      const distanceToArrowLine = (
+        p: { x: number; y: number },
+        a: { x: number; y: number },
+        b: { x: number; y: number }
+      ) => {
+        const len = Math.hypot(b.x - a.x, b.y - a.y);
+        if (len === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+        const t =
+          ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (len * len);
+        const clampedT = Math.max(0, Math.min(1, t));
+        const proj = {
+          x: a.x + clampedT * (b.x - a.x),
+          y: a.y + clampedT * (b.y - a.y),
+        };
+        return Math.hypot(p.x - proj.x, p.y - proj.y);
+      };
+      return (
+        distanceToArrowLine(
+          point,
+          { x: shape.startX, y: shape.startY },
+          { x: shape.x, y: shape.y }
+        ) < 5
+      );
+
+    case "Pencil":
+      return shape.points.some(
+        (p) => Math.hypot(point.x - p.x, point.y - p.y) < 5
+      );
+
+    case "Text":
+      const textWidth = 100;
+      const textHeight = 20;
+      return (
+        point.x >= shape.x &&
+        point.x <= shape.x + textWidth &&
+        point.y >= shape.y - textHeight &&
+        point.y <= shape.y
+      );
+
+    default:
+      return false;
   }
 }
