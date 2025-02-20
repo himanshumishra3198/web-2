@@ -65,6 +65,8 @@ export function createPencil({
   ctx.beginPath();
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
 
   ctx.moveTo(points[0].x, points[0].y);
   for (let i = 1; i < points.length; i++) {
@@ -72,6 +74,7 @@ export function createPencil({
   }
 
   ctx.stroke();
+  ctx.closePath();
 }
 
 export function createArrow({

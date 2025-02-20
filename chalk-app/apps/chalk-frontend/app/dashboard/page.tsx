@@ -8,12 +8,21 @@ import { CreateRoom } from "./component/createRoom";
 import { JoinRoom } from "./component/joinRoom";
 import { useRooms } from "../../hooks/useRooms";
 import Link from "next/link";
+import axios from "axios";
+import { BACKEND_URL } from "../configs";
+import { useRouter } from "next/navigation";
 
 const Index = () => {
   let [createRoomOpen, setCreateRoomOpen] = useState(false);
   let [joinRoomOpen, setJoinRoomOpen] = useState(false);
+  let [roomLeft, setRoomLeft] = useState(false);
+  let { loading, rooms, error } = useRooms([
+    createRoomOpen,
+    joinRoomOpen,
+    roomLeft,
+  ]);
 
-  let { loading, rooms, error } = useRooms([createRoomOpen, joinRoomOpen]);
+  const router = useRouter();
   const handleCreateRoom = () => {
     setCreateRoomOpen(true);
   };
@@ -37,9 +46,10 @@ const Index = () => {
           setJoinRoomOpen(false);
         }}
       />
-      <Sidebar />
-
-      <main className="flex-1 p-8">
+      <div className="fixed">
+        <Sidebar />
+      </div>
+      <main className="flex-1 p-8 ml-64">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -80,13 +90,28 @@ const Index = () => {
                     description: string;
                   }) => (
                     <div key={room.id}>
-                      <Link href={`/dashboard/room/${room.slug}`}>
-                        <RoomCard
-                          slug={room.slug}
-                          memberCount={room._count.joinedUsers}
-                          description={room.description}
-                        />
-                      </Link>
+                      <RoomCard
+                        onOpenRoom={() => {
+                          return router.push(`/dashboard/room/${room.slug}`);
+                        }}
+                        slug={room.slug}
+                        memberCount={room._count.joinedUsers}
+                        description={room.description}
+                        onLeaveRoom={async () => {
+                          const token = localStorage.getItem("token");
+                          console.log(token);
+                          await axios.post(
+                            BACKEND_URL + `/leaveRoom/${room.id}`,
+                            {},
+                            {
+                              headers: {
+                                Authorization: token,
+                              },
+                            }
+                          );
+                          setRoomLeft((prev) => !prev);
+                        }}
+                      />
                     </div>
                   )
                 )}

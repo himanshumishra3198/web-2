@@ -2,18 +2,16 @@
 import { Button } from "@repo/ui/button";
 import { InputBox } from "@repo/ui/input";
 import axios from "axios";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BACKEND_URL } from "../configs";
 export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   async function handleLogin() {
-    console.log("hello");
     try {
-      console.log(emailRef.current?.value);
-      console.log(passwordRef.current?.value);
       if (!(emailRef.current && passwordRef.current)) {
         return;
       }
@@ -50,8 +48,10 @@ export default function Login() {
             text="Login"
             variant="secondary"
             onClick={() => {
+              setLoading(true);
               handleLogin();
             }}
+            isLoading={loading}
           />
         </div>
       </div>

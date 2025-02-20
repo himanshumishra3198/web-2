@@ -62,6 +62,7 @@ export function JoinRoom({
     } catch (e) {
       console.log(e);
     }
+    setDisabled(false);
   }
 
   return (
@@ -87,6 +88,7 @@ export function JoinRoom({
                 variant="secondary"
                 onClick={handleJoinRoom}
                 disabled={disabled}
+                isLoading={disabled}
               />
             </div>
           </div>

@@ -13,7 +13,8 @@
     "./button": "./src/button.tsx",
     "./input": "./src/inputBox.tsx",
     "./actionButton": "./src/actionButton.tsx",
-    "./roomCard": "./src/roomCard.tsx"
+    "./roomCard": "./src/roomCard.tsx",
+    "./userAvatar": "./src/userAvatar.tsx"
   },
   "license": "MIT",
   "scripts": {
@@ -22,6 +23,7 @@
     "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
     "lint": "eslint src --max-warnings 0"
   },
+  "type": "module",
   "peerDependencies": {
     "react": "^19"
   },

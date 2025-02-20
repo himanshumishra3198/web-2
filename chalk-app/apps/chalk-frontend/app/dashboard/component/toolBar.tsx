@@ -33,7 +33,7 @@ export default function Toolbar({
   changeTool: (tool: string) => void;
 }) {
   return (
-    <div className="fixed left-4 top-1/2 transform -translate-y-1/2 bg-white/9 shadow-lg rounded-lg p-2 space-y-2">
+    <div className="align-center items-center justify-center flex fixed left-1/2 top-4 transform -translate-x-1/2 bg-white/9 shadow-lg rounded-lg p-4 space-x-2">
       {tools.map((tool) => {
         const Icon = tool.icon;
         return (

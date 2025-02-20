@@ -4,15 +4,17 @@ import { InputBox } from "@repo/ui/input";
 import axios from "axios";
 import { BACKEND_URL } from "../configs";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Signup() {
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  let [loading, setLoading] = useState(false);
   const router = useRouter();
   async function handleSignup() {
+    setLoading(true);
     try {
       if (!(nameRef.current && emailRef.current && passwordRef.current)) {
         return;
@@ -30,6 +32,7 @@ export default function Signup() {
     } catch (e) {
       console.log(e);
     }
+    setLoading(false);
   }
   return (
     <div className="w-screen flex h-screen items-center justify-center">
@@ -47,7 +50,12 @@ export default function Signup() {
           />
         </div>
         <div className="text-white p-4 flex items-center justify-center">
-          <Button text="Signup" onClick={handleSignup} variant="secondary" />
+          <Button
+            text="Signup"
+            onClick={handleSignup}
+            variant="secondary"
+            isLoading={loading}
+          />
         </div>
       </div>
     </div>

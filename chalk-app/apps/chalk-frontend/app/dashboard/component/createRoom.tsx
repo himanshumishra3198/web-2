@@ -53,6 +53,7 @@ export function CreateRoom({
     } catch (e) {
       console.log(e);
     }
+    setDisabled(false);
   }
 
   return (
@@ -83,7 +84,7 @@ export function CreateRoom({
                 // icon={<Plus className="w-4 h" color="white" />}
                 variant="secondary"
                 onClick={handleSubmit}
-                disabled={disabled}
+                isLoading={disabled}
               />
             </div>
           </div>

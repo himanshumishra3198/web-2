@@ -207,7 +207,6 @@ app.post("/joinRoom/:roomId", async (req, res) => {
     await prismaClient.roomUser.create({
       data: {
         roomId: Number(req.params.roomId),
-
         userId: req.userId,
       },
     });
@@ -219,6 +218,24 @@ app.post("/joinRoom/:roomId", async (req, res) => {
     res.status(401).json({
       message: e,
     });
+  }
+});
+
+app.get("/roomUsers/:roomId", async (req, res) => {
+  try {
+    const roomId = Number(req.params.roomId);
+
+    const users = await prismaClient.roomUser.findMany({
+      where: { roomId },
+      select: { user: { select: { name: true } } },
+    });
+
+    const userNames = users.map((roomUser) => roomUser.user.name);
+
+    res.json({ users: userNames });
+  } catch (error) {
+    console.error("Error fetching room users:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
