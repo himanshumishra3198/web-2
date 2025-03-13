@@ -1,6 +1,6 @@
 "use client";
 import { Users, LogOut, ArrowRight } from "lucide-react";
-import { Button } from "./button.js";
+import { Button } from "./button";
 import { useState } from "react";
 
 interface RoomCardProps {
