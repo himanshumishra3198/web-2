@@ -2,7 +2,7 @@ import { JWT_SECRET } from "@repo/common/config";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { WebSocketServer, WebSocket } from "ws";
 import { prismaClient } from "@repo/db/client";
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 8081 });
 
 // const users = [
 //   {userId: 1
